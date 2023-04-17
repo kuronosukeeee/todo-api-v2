@@ -85,6 +85,16 @@ namespace TodoApi.Controllers
       {
         return BadRequest("期日に過去の日付が設定されています");
       }
+     //期日がUTCではない場合はCompletedDateをUTCに変換する
+      if (todoItem.DueDate.Kind != DateTimeKind.Utc)
+      {
+        todoItem.DueDate = todoItem.DueDate.ToUniversalTime();
+      }
+      //タスクが完了している＋完了日が設定されている＋完了日がUTCではない場合はCompletedDateをUTCに変換する
+      if (todoItem.IsCompleted && todoItem.CompletedDate.HasValue && todoItem.CompletedDate.Value.Kind != DateTimeKind.Utc)
+      {
+        todoItem.CompletedDate = todoItem.CompletedDate.Value.ToUniversalTime();
+      }
       // Addは引数で受け取ったtodoItemインスタンスを新しいレコードとしてTodoItemテーブルに挿入するEF Coreのメソッド
       _context.TodoItem.Add(todoItem);
       // SaveChangesAsyncはAddメソッドで追加したデータをデータベースに反映（保存）するEF Coreのメソッド

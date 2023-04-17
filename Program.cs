@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 // Models名前空間のインポート（データベースコンテキスの追加でTodoContextを使用）
 using TodoApi.Models;
 
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 // builderオブジェクトの生成（アプリの設定やアプリの（コア）機能（＝サービス）の登録で使用）
 var builder = WebApplication.CreateBuilder(args);
@@ -20,11 +21,14 @@ var builder = WebApplication.CreateBuilder(args);
 //CORSポリシーの設定（特定の（自身とは異なる）オリジン（プロトコル＋ドメイン＋ポート）からの接続を許可する設定（通常は拒否される））の追加（ほぼテンプレ）
 builder.Services.AddCors(options =>
 {
-    //ここでMyAllowSpecificOriginという名前（名前は自由）で管理されるCROSポリシーを定義
-    options.AddPolicy(name: MyAllowSpecificOrigin,
+    //ここでMyAllowSpecificOrigins（次の宣言が必要「var ポリシー名 = "_myAllowSpecificOrigins";）という名前で管理されるCROSポリシーを定義
+    options.AddPolicy(name: MyAllowSpecificOrigins,
                       policy =>
                       {
-                          policy.WithOrigins("http://localhost:3000");
+                          policy.WithOrigins("http://localhost:3000")
+                                .AllowAnyHeader()
+                                .AllowAnyMethod();
+                          
                       });
 });
 
@@ -49,11 +53,11 @@ var app = builder.Build();
 // Httpでアクセスされた場合はHttpsにリダイレクトする設定（自動生成）
 // app.UseHttpsRedirection();
 
+//ここでCORSミドルウェア（OSとアプリケーションを繋ぐもの（WEBサーバーとかデータベースとか））を実行（実行順序が大事：UseRoutingの後でUseAuthorizationの前）
+app.UseCors(MyAllowSpecificOrigins);
+
 // 認証・認可機能を有効にする設定（自動生成）
 // app.UseAuthorization();
-
-//ここでCORSミドルウェア（OSとアプリケーションを繋ぐもの（WEBサーバーとかデータベースとか））を実行（実行順序が大事：UseRoutingの後でUseAuthorizationの前）
-app.UseCors(MyAllowSpecificOrigin);
 
 // ControllerをHttpリクエストにマッピング
 app.MapControllers();
