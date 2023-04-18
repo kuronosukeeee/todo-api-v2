@@ -96,7 +96,7 @@ namespace TodoApi.Controllers
         todoItem.CompletedDate = todoItem.CompletedDate.Value.ToUniversalTime();
       }
       // Addは引数で受け取ったtodoItemインスタンスを新しいレコードとしてTodoItemテーブルに挿入するEF Coreのメソッド
-      _context.TodoItem.Add(todoItem);
+       _context.TodoItem.Add(todoItem);
       // SaveChangesAsyncはAddメソッドで追加したデータをデータベースに反映（保存）するEF Coreのメソッド
       await _context.SaveChangesAsync();
       // CreatedAtActionはControllerBaseが提供するヘルパーメソッド（Httpステータスコード201（Created）を返す）
@@ -128,9 +128,14 @@ namespace TodoApi.Controllers
       {
         return BadRequest();
       }
-      // タスクが完了済でかつ、タスク完了日時が設定されていないものには現在の日時を設定する
-      if (todoItem.IsCompleted && todoItem.CompletedDate == null)
-      {
+    //期日がUTCではない場合はCompletedDateをUTCに変換する
+    if (todoItem.DueDate.Kind != DateTimeKind.Utc)
+    {
+        todoItem.DueDate = todoItem.DueDate.ToUniversalTime();
+    }
+    // タスクが完了済でかつ、タスク完了日時が設定されていないものには現在の日時を設定する
+    if (todoItem.IsCompleted && todoItem.CompletedDate == null)
+    {
         // 現在時刻を取得する処理はタイムゾーンを考慮しない絶対的な時刻であるUTCを使用し、日本時間(JST)で時刻を表示する場合はクライアントサイドで実装（UTC→JSTへ変換）することが一般的
         todoItem.CompletedDate = DateTime.UtcNow;
       }
