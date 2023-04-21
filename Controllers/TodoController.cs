@@ -46,7 +46,14 @@ namespace TodoApi.Controllers
       // EF Coreはテーブルに対応するModelを使用して操作する（この場合はTodoItem）
       // 記述方法は「Dbcontext.Model.EF Coreのメソッド」
       // ToListAsyncは全てのTodoItemを（非同期的に）リストに変換するEF Coreのメソッド
-      return await _context.TodoItem.ToListAsync();
+      try
+      {
+        return await _context.TodoItem.ToListAsync();
+      }
+      catch (Exception ex)
+      {
+        return StatusCode(500, $"Internal server error: {ex.Message}");
+      }
     }
 
     // 未完了タスクの取得
@@ -77,7 +84,7 @@ namespace TodoApi.Controllers
       if (todoItem.Description.Length > 100)
       {
         // BadRequestはControllerBaseクラスが提供するヘルパーメソッド（400 BadRequestを返し、クライアントが不正なリクエストを送信したことを示す）
-        return BadRequest();
+        return BadRequest("タスクの内容は100文字以内にしてください");
       }
       // 期日が過去日の場合はBadRequestを返す
       // DateTimeクラスのUtcNowプロパティは現在の日時を表すDateTimeオブジェクトをUTC(協定世界時)で取得する
