@@ -25,5 +25,21 @@ namespace TodoApi.Models
     // CompletedDateは完了時に設定されるべきなのでnull許容型
     public DateTime? CompletedDate { get; set; }
     public bool IsCompleted { get; set; }
+    // DueDateを"yyyy/MM/dd HH:mm"形式の文字列で返すプロパティ
+    public string DueDateString
+    {
+      get
+      {
+        return DueDate.ToString("yyyy/MM/dd HH:mm");
+      }
+    }
+    // CompletedDateを"yyyy/MM/dd HH:mm"形式の文字列で返すプロパティ（null許容型）
+    public string CompletedDateString
+    {
+      get
+      {
+        return CompletedDate.HasValue ? CompletedDate.Value.ToString("yyyy/MM/dd HH:mm") : null;
+      }
+    }
   }
 }
