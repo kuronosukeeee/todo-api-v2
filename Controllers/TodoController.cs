@@ -35,7 +35,7 @@ namespace TodoApi.Controllers
     //    ①async修飾詞をつける（awaitを利用するための宣言）
     //    ②戻り値はTask型（スレッドプール（オーバーヘッドを減らすためにスレッドを再利用する仕組み）を使用するためのクラス）
     //    ③非同期実行したい処理にawait演算子を付与（await演算子を付与した部分以外は同期的に順次実行される点に注意）
-    //    （非同期処理のメソッド名は可読性の観点から〜Asyncとすることが一般的）    
+    //    （非同期処理のメソッド名は可読性の観点から〜Asyncとすることが一般的）
     // アクションメソッドの戻り値はActionResult型（httpステータスコードや返すデータなどを含む）もしくはその派生型＋ジェネリック（汎用的なクラスやメソッドを特定の型に対応付ける機能）
     // データの取得処理は、反復処理（イテレーション）やフィルタリング、ソートなどが簡単にできるようにコレクションとして取得することが一般的
     // IEnumerable<T>は上記の機能（コレクションに対する反復処理）を可能にするためのインターフェースであり、これを戻り値の型として指定する事で以下の2つのメリットが得られる
@@ -52,6 +52,8 @@ namespace TodoApi.Controllers
       }
       catch (Exception ex)
       {
+        // $は文字列補間というテンプレートリテラルのようなもの
+        // $"{}"の形式で使用する（変数はいくつでも埋め込める）
         return StatusCode(500, $"Internal server error: {ex.Message}");
       }
     }
@@ -63,7 +65,8 @@ namespace TodoApi.Controllers
     {
       // EF Core＋LINQ（whereによるフィルタリング）を使ったクエリの発行形式は以下の通り
       // 「Dbcontext.Model.LINQ（フィルタリング、ソート、グルーピング）.EF Coreのメソッド」
-      // LINQのwhereメソッドは、コレクション内の各要素を取り出し、ラムダ式で指定された処理を適用する（todoItemはその際にコレクションから取り出した要素を一時的に格納するための変数（TodoItemモデルのIsCompletedプロパティを参照））
+      // LINQのwhereメソッドは、与えられた条件を満たす要素だけを抽出する（todoItemはその際にコレクションから取り出した要素を一時的に格納するための変数（TodoItemモデルのIsCompletedプロパティを参照））
+      // (TodoItem =>!TodoItem.IsCompleted)全体がtrueになるものだけを抽出→つまり、isCompletedがfalseのものだけを抽出することになる
       return await _context.TodoItem.Where(todoItem => !todoItem.IsCompleted).ToListAsync();
     }
 
@@ -92,7 +95,7 @@ namespace TodoApi.Controllers
       {
         return BadRequest("期日に過去の日付が設定されています");
       }
-     //期日がUTCではない場合はCompletedDateをUTCに変換する
+      //期日がUTCではない場合はCompletedDateをUTCに変換する
       if (todoItem.DueDate.Kind != DateTimeKind.Utc)
       {
         todoItem.DueDate = todoItem.DueDate.ToUniversalTime();
@@ -103,7 +106,7 @@ namespace TodoApi.Controllers
         todoItem.CompletedDate = todoItem.CompletedDate.Value.ToUniversalTime();
       }
       // Addは引数で受け取ったtodoItemインスタンスを新しいレコードとしてTodoItemテーブルに挿入するEF Coreのメソッド
-       _context.TodoItem.Add(todoItem);
+      _context.TodoItem.Add(todoItem);
       // SaveChangesAsyncはAddメソッドで追加したデータをデータベースに反映（保存）するEF Coreのメソッド
       await _context.SaveChangesAsync();
       // CreatedAtActionはControllerBaseが提供するヘルパーメソッド（Httpステータスコード201（Created）を返す）
@@ -135,14 +138,14 @@ namespace TodoApi.Controllers
       {
         return BadRequest();
       }
-    //期日がUTCではない場合はCompletedDateをUTCに変換する
-    if (todoItem.DueDate.Kind != DateTimeKind.Utc)
-    {
+      //期日がUTCではない場合はCompletedDateをUTCに変換する
+      if (todoItem.DueDate.Kind != DateTimeKind.Utc)
+      {
         todoItem.DueDate = todoItem.DueDate.ToUniversalTime();
-    }
-    // タスクが完了済でかつ、タスク完了日時が設定されていないものには現在の日時を設定する
-    if (todoItem.IsCompleted && todoItem.CompletedDate == null)
-    {
+      }
+      // タスクが完了済でかつ、タスク完了日時が設定されていないものには現在の日時を設定する
+      if (todoItem.IsCompleted && todoItem.CompletedDate == null)
+      {
         // 現在時刻を取得する処理はタイムゾーンを考慮しない絶対的な時刻であるUTCを使用し、日本時間(JST)で時刻を表示する場合はクライアントサイドで実装（UTC→JSTへ変換）することが一般的
         todoItem.CompletedDate = DateTime.UtcNow;
       }

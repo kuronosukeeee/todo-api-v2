@@ -6,13 +6,15 @@
 // EF Coreの機能を提供するクラス
 using Microsoft.EntityFrameworkCore;
 
-namespace TodoApi.Models {
+namespace TodoApi.Models
+{
   // :DbContextはC#におけるクラスの継承
-  public class TodoContext : DbContext {
+  public class TodoContext : DbContext
+  {
     // :baseはC#における基底クラスコンストラクタの呼び出し
-    public TodoContext(DbContextOptions<TodoContext> options) : base(options){}
+    public TodoContext(DbContextOptions<TodoContext> options) : base(options) { }
     // ここはプロパティ名をモデルクラスの複数形にしてコレクションを明示した方がいいという考えもあった
     // とりあえずは参考書籍「速習ASP.NET Core MVC編」の指示に従ってモデルクラスと同名にする
-    public DbSet<TodoItem>? TodoItem {get; set;}
-    }
+    public DbSet<TodoItem>? TodoItem { get; set; }
   }
+}

@@ -21,14 +21,14 @@ var builder = WebApplication.CreateBuilder(args);
 //CORSポリシーの設定（特定の（自身とは異なる）オリジン（プロトコル＋ドメイン＋ポート）からの接続を許可する設定（通常は拒否される））の追加（ほぼテンプレ）
 builder.Services.AddCors(options =>
 {
-    //ここでMyAllowSpecificOrigins（次の宣言が必要「var ポリシー名 = "_myAllowSpecificOrigins";）という名前で管理されるCROSポリシーを定義
-    options.AddPolicy(name: MyAllowSpecificOrigins,
-                      policy =>
-                      {
-                          policy.AllowAnyOrigin()
-                                .AllowAnyHeader()
-                                .AllowAnyMethod();
-                      });
+  //ここでMyAllowSpecificOrigins（次の宣言が必要「var ポリシー名 = "_myAllowSpecificOrigins";）という名前で管理されるCROSポリシーを定義
+  options.AddPolicy(name: MyAllowSpecificOrigins,
+                    policy =>
+                    {
+                      policy.AllowAnyOrigin()
+                              .AllowAnyHeader()
+                              .AllowAnyMethod();
+                    });
 });
 
 // MVCモデルのControllerを追加
